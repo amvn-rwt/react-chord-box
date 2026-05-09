@@ -2,6 +2,9 @@ import { chords } from "./chords";
 import type { ChordDiagramProps } from "./types";
 
 const STRINGS = 6;
+/** Names left → right (6th … 1st). */
+const STRING_NAMES = ["E", "A", "D", "G", "B", "E"] as const;
+
 /** How many fret spaces to show below the nut (typical chord chart). */
 const VISIBLE_FRETS = 4;
 
@@ -94,16 +97,22 @@ export default function ChordDiagram({
     minDim * 0.045,
     openMarkerTopY < 0 ? -openMarkerTopY + 3 : 0,
   );
-  const viewBox = `-${viewPadX} -${viewPadY} ${width + 2 * viewPadX} ${height + viewPadY}`;
+
+  const labelFont = Math.max(8, minDim * 0.048);
+  const labelSlot = labelFont + 10;
+  const svgHeight = height + labelSlot;
+  const labelY = height + labelSlot / 2;
+
+  const viewBox = `-${viewPadX} -${viewPadY} ${width + 2 * viewPadX} ${svgHeight + viewPadY}`;
 
   return (
     <svg
       width={width}
-      height={height}
+      height={svgHeight}
       viewBox={viewBox}
       overflow="visible"
       preserveAspectRatio="xMidYMid meet"
-      aria-label={`${chord} chord diagram`}
+      aria-label={`${chord} chord diagram, standard tuning E A D G B E`}
     >
       {/* frets (drawn under strings) */}
       <g strokeLinecap="butt">
@@ -212,6 +221,25 @@ export default function ChordDiagram({
             </g>
           );
         })}
+      </g>
+
+      {/* string names (below fretboard, 6 → 1 left → right) */}
+      <g aria-hidden="true">
+        {STRING_NAMES.map((name, i) => (
+          <text
+            key={`str-${i}`}
+            x={stringX(i, width, minDim)}
+            y={labelY}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="#374151"
+            fontSize={labelFont}
+            fontWeight={500}
+            fontFamily="system-ui, sans-serif"
+          >
+            {name}
+          </text>
+        ))}
       </g>
     </svg>
   );
