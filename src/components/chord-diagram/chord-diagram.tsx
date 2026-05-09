@@ -79,13 +79,21 @@ export default function ChordDiagram({
   // Font size for finger number indicators ("1", "2", etc)
   const fingerFont = Math.max(5, minDim * 0.065);
 
-  // Extra viewBox padding so open/muted glyphs (O, ×) are not clipped at the edges
-  const viewPadX = Math.max(markerFont * 0.6, minDim * 0.07, 11);
-  const viewPadY = Math.max(markerFont * 0.55, minDim * 0.04, 9);
-  const viewBox = `-${viewPadX} -${viewPadY} ${width + 2 * viewPadX} ${height + viewPadY}`;
+  // Center Y for open (O) / muted (×): entirely above the nut top (not overlap)
+  const openMutedY =
+    nutTop - markerFont * 0.53 - Math.max(2, minDim * 0.012);
 
-  // Y position for open or muted string markers (O / × above the nut)
-  const openMutedY = Math.max(markerFont * 0.45, nutTop * 0.48);
+  const markerAscentApprox = markerFont * 0.58;
+  const openMarkerTopY = openMutedY - markerAscentApprox;
+
+  const viewPadX = Math.max(markerFont * 0.6, minDim * 0.07, 11);
+  const viewPadY = Math.max(
+    10,
+    markerFont * 0.75,
+    minDim * 0.045,
+    openMarkerTopY < 0 ? -openMarkerTopY + 3 : 0,
+  );
+  const viewBox = `-${viewPadX} -${viewPadY} ${width + 2 * viewPadX} ${height + viewPadY}`;
 
   return (
     <svg
