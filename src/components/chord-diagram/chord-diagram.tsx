@@ -140,7 +140,7 @@ export default function ChordDiagram({
         );
       })}
 
-      {/* finger dots, open (O), muted (×) */}
+      {/* finger dots, open (O), muted (X) */}
       <g>
         {frets.map((fret, i) => {
           const finger = fingers[i]!;
