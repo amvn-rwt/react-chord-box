@@ -48,8 +48,6 @@ export default function ChordDiagram({
 
   // Thickness of each fret wire (horizontal line)
   const fretWireStroke = Math.max(1, minDim * 0.004);
-  // Inset caused by half the fret thickness (for accurate fret start/end)
-  const fretInset = fretWireStroke / 2;
 
   // Thickness of the nut (the topmost, thick horizontal bar)
   const nutThickness = Math.max(minDim * 0.02, 2.5);
@@ -72,6 +70,10 @@ export default function ChordDiagram({
   const fretX1 = xLeft;
   const fretX2 = xRight;
 
+  const nutX = xLeft - stringStrokes[0]! / 2;
+  const nutW =
+    xRight + stringStrokes[STRINGS - 1]! / 2 - nutX;
+
   // Radius of finger/fret marker dots
   const dotR = Math.max(6, minDim * 0.034);
   // Font size for fretboard position markers ("3", "5", etc)
@@ -80,8 +82,7 @@ export default function ChordDiagram({
   const fingerFont = Math.max(5, minDim * 0.065);
 
   // Center Y for open (O) / muted (×): entirely above the nut top (not overlap)
-  const openMutedY =
-    nutTop - markerFont * 0.53 - Math.max(2, minDim * 0.012);
+  const openMutedY = nutTop - markerFont * 0.53 - Math.max(2, minDim * 0.012);
 
   const markerAscentApprox = markerFont * 0.58;
   const openMarkerTopY = openMutedY - markerAscentApprox;
@@ -123,13 +124,7 @@ export default function ChordDiagram({
       </g>
 
       {/* nut */}
-      <rect
-        x={fretX1 - fretInset}
-        y={nutTop}
-        width={fretX2 - fretX1 + 2 * fretInset}
-        height={nutThickness}
-        fill="#1f2937"
-      />
+      <rect x={nutX} y={nutTop} width={nutW} height={nutThickness} fill="#1f2937" />
 
       {/* strings */}
       {Array.from({ length: STRINGS }).map((_, i) => {
