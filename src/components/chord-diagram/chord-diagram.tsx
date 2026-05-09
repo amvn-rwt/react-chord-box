@@ -38,37 +38,61 @@ export default function ChordDiagram({
 }: ChordDiagramProps) {
   const { frets, fingers } = chords[chord];
   const minDim = Math.min(width, height);
+  // Calculate stroke widths for each string based on their gauge
   const stringStrokes = Array.from({ length: STRINGS }, (_, j) =>
     stringGaugeStroke(j, minDim),
   );
+
+  // Maximum string thickness, used as inset from SVG edge
   const edgeInset = Math.max(...stringStrokes) / 2;
 
+  // Thickness of each fret wire (horizontal line)
   const fretWireStroke = Math.max(1, minDim * 0.004);
+  // Inset caused by half the fret thickness (for accurate fret start/end)
   const fretInset = fretWireStroke / 2;
 
+  // Thickness of the nut (the topmost, thick horizontal bar)
   const nutThickness = Math.max(minDim * 0.02, 2.5);
+  // Vertical start of the nut
   const nutTop = edgeInset;
+  // Vertical bottom of the nut
   const nutBottom = nutTop + nutThickness;
 
+  // Bottom coordinate of the fretboard (excluding edge inset)
   const boardBottom = height - edgeInset;
+  // Usable height of the fingerboard (below the nut)
   const innerBoard = Math.max(boardBottom - nutBottom, 1);
+  // Height per fret cell
   const cellHeight = innerBoard / VISIBLE_FRETS;
 
+  // Horizontal x-coordinates for the outermost strings
   const xLeft = stringX(0, width, minDim);
   const xRight = stringX(STRINGS - 1, width, minDim);
+  // Fret lines run from xLeft to xRight
   const fretX1 = xLeft;
   const fretX2 = xRight;
 
+  // Radius of finger/fret marker dots
   const dotR = Math.max(6, minDim * 0.034);
-  const markerFont = Math.max(10, minDim * 0.09);
-  const fingerFont = Math.max(9, minDim * 0.065);
-  const openMutedY = Math.max(dotR, (nutTop + edgeInset) * 0.45);
+  // Font size for fretboard position markers ("3", "5", etc)
+  const markerFont = Math.max(9, minDim * 0.09);
+  // Font size for finger number indicators ("1", "2", etc)
+  const fingerFont = Math.max(5, minDim * 0.065);
+
+  // Extra viewBox padding so open/muted glyphs (O, ×) are not clipped at the edges
+  const viewPadX = Math.max(markerFont * 0.6, minDim * 0.07, 11);
+  const viewPadY = Math.max(markerFont * 0.55, minDim * 0.04, 9);
+  const viewBox = `-${viewPadX} -${viewPadY} ${width + 2 * viewPadX} ${height + viewPadY}`;
+
+  // Y position for open or muted string markers (O / × above the nut)
+  const openMutedY = Math.max(markerFont * 0.45, nutTop * 0.48);
 
   return (
     <svg
       width={width}
       height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={viewBox}
+      overflow="visible"
       preserveAspectRatio="xMidYMid meet"
       aria-label={`${chord} chord diagram`}
     >
@@ -154,7 +178,7 @@ export default function ChordDiagram({
                 fontWeight={500}
                 fontFamily="system-ui, sans-serif"
               >
-                ×
+                X
               </text>
             );
           }
@@ -167,12 +191,7 @@ export default function ChordDiagram({
 
           return (
             <g key={key}>
-              <circle
-                cx={x}
-                cy={cy}
-                r={dotR}
-                fill="#1d4ed8"
-              />
+              <circle cx={x} cy={cy} r={dotR} />
               {finger > 0 && (
                 <text
                   x={x}
